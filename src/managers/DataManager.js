@@ -53,11 +53,25 @@ class DataManager {
     }
 
     resetPlayers() {
-        this.db.run("DELETE FROM players");
+        return new Promise((res, rej) => {
+            this.db.run("DELETE FROM players", [], (err) => {
+                if (err === null)
+                    res();
+                else
+                    rej();
+            });
+        });
     }
 
     resetGames() {
-        this.db.run("DELETE FROM games");
+        return new Promise((res, rej) => {
+            this.db.run("DELETE FROM games", [], (err) => {
+                if (err === null)
+                    res();
+                else
+                    rej();
+            });
+        });
     }
 }
 

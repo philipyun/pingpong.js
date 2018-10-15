@@ -24,15 +24,26 @@ class APIManager {
     }
 
     async deletePlayer(req, res, next) {
-        let { playerId } = req.body;
         try {
-            await DataManager.deletePlayer(playerId);
+            await DataManager.deletePlayer(req.params.playerId);
             res.status = 200;
             res.send(true);
         } catch (e) {
             res.status = 500;
             res.send(false);
         }
+    }
+
+    async deleteAllPlayers(req, res, next) {
+        try {
+            await DataManager.resetPlayers();
+            res.status = 200;
+            res.send(true);
+        } catch (e) {
+            res.status = 500;
+            res.send(false);
+        }
+
     }
 }
 
