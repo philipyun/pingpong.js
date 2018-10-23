@@ -2,19 +2,15 @@ const DataManager = require("./DataManager");
 
 class APIManager {
 
-    constructor() {
-
-    }
-
     async createPlayer(req, res, next) {
         let { playerName, nickname } = req.body;
         try {
             await DataManager.createPlayer(playerName, nickname);
-            res.status = 200;
+            res.status(200);
             res.send(true);
         } catch (e) {
-            res.stat = 500;
-            res.send(false);
+            res.status(500);
+            res.send(e.message);
         }
     }
 
@@ -26,24 +22,23 @@ class APIManager {
     async deletePlayer(req, res, next) {
         try {
             await DataManager.deletePlayer(req.params.playerId);
-            res.status = 200;
+            res.status(200);
             res.send(true);
         } catch (e) {
-            res.status = 500;
-            res.send(false);
+            res.status(500);
+            res.send(e.message);
         }
     }
 
     async deleteAllPlayers(req, res, next) {
         try {
             await DataManager.resetPlayers();
-            res.status = 200;
+            res.status(200);
             res.send(true);
         } catch (e) {
-            res.status = 500;
-            res.send(false);
+            res.status(500);
+            res.send(e.message);
         }
-
     }
 }
 
