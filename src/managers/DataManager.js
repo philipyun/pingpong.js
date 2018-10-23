@@ -18,6 +18,8 @@ class DataManager {
         });
     }
 
+    // Players
+
     createPlayer(playerName, nickname="") {
         return new Promise((res, rej) => {
             this.db.run("INSERT INTO players (name, nickname) VALUES (?, ?)", [playerName, nickname], (e) => {
@@ -59,6 +61,42 @@ class DataManager {
                     res();
                 else
                     rej();
+            });
+        });
+    }
+
+    // Games
+
+    getGames() {
+        return new Promise((res, rej) => {
+            this.db.all("SELECT * FROM games", [], (err, data) => {
+                if (err === null)
+                    res(data);
+                else
+                    rej(err);
+            })
+        })
+    }
+
+    createGame(player1, player2, player1Score, player2Score) {
+        return new Promise((res, rej) => {
+            this.db.serialize(() => {
+                for (let playerId of [player1, player2]) {
+                    const playerIdSelect = "SELECT player_id FROM players WHERE player_id=(?)";
+                    this.db.get(playerIdSelect, [playerId], (err, row) => {
+                        if (!row) {
+                            rej(Error('Player ID does not exist: ' + playerId));
+                        }
+                    });
+                }
+
+                const gameInsert = "INSERT INTO games (player1, player2, player1_score, player2_score) VALUES (?,?,?,?)";
+                this.db.run(gameInsert, [player1, player2, player1Score, player2Score], (err) => {
+                    if (err === null)
+                        res();
+                    else
+                        rej(err);
+                });
             });
         });
     }
