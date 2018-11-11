@@ -50,9 +50,9 @@ class APIManager {
     }
 
     async createGame(req, res, next) {
-        let { player1, player2, player1Score, player2Score } = req.body;
+        let { player1, player2, player1_score, player2_score } = req.body;
         try {
-            await DataManager.createGame(player1, player2, player1Score, player2Score);
+            await DataManager.createGame(player1, player2, player1_score, player2_score);
             res.status(200);
             res.send(true);
         } catch (e) {

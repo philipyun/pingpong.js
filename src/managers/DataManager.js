@@ -69,7 +69,7 @@ class DataManager {
 
     getGames() {
         return new Promise((res, rej) => {
-            this.db.all("SELECT * FROM games", [], (err, data) => {
+            this.db.all("SELECT * FROM games ORDER BY game_id DESC", [], (err, data) => {
                 if (err === null)
                     res(data);
                 else
@@ -78,7 +78,7 @@ class DataManager {
         })
     }
 
-    createGame(player1, player2, player1Score, player2Score) {
+    createGame(player1, player2, player1_score, player2_score) {
         return new Promise((res, rej) => {
             this.db.serialize(() => {
                 for (let playerId of [player1, player2]) {
@@ -91,7 +91,7 @@ class DataManager {
                 }
 
                 const gameInsert = "INSERT INTO games (player1, player2, player1_score, player2_score) VALUES (?,?,?,?)";
-                this.db.run(gameInsert, [player1, player2, player1Score, player2Score], (err) => {
+                this.db.run(gameInsert, [player1, player2, player1_score, player2_score], (err) => {
                     if (err === null)
                         res();
                     else
