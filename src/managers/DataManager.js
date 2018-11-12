@@ -42,6 +42,17 @@ class DataManager {
         });
     }
 
+    getPlayer(playerId) {
+        return new Promise((res, rej) => {
+            this.db.get("SELECT * FROM players WHERE playerID = (?)", playerId, (err, data) => {
+                if (err === null)
+                    res(new Player(data));
+                else
+                    rej(err);
+            });
+        });
+    }
+
     getPlayers() {
         return new Promise((res, rej) => {
             this.db.all("SELECT * FROM players", [], (err, data) => {
