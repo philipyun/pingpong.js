@@ -16,7 +16,16 @@ class APIManager {
     }
 
     async getPlayer(req, res, next) {
-
+        let { playerID } = req.body;
+        try {
+            let player = await DataManager.getPlayer(playerID);
+            res.status(200);
+            res.send(JSON.stringify(player));
+        } catch (e) {
+            // should check type of error and possibly send 404
+            res.status(500);
+            res.send(e.message);
+        }
     }
 
     async getPlayers(req, res, next) {
