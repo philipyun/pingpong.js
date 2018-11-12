@@ -17,7 +17,7 @@ Player Object format:
 
 ```
 {
-    player_id: <int (unique)>,
+    playerID: <int (unique)>,
     name: <string>,
     nickname: <string>,
     elo: <int>
