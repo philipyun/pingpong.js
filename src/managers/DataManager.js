@@ -113,6 +113,7 @@ class DataManager {
                 } catch (e) {
                     let missingPlayer = player1 === null ? player1ID : player2ID;
                     rej(Error('Player ID does not exist: ' + missingPlayer));
+                    return;
                 }
 
                 let player1Upset = (player1.elo > player2.elo) && (player1Score > player2Score);
@@ -122,8 +123,8 @@ class DataManager {
                 player1.updateRating(player2, player1Score > player2Score);
                 player2.updateRating(player1, player2Score > player1Score);
 
-                this.updatePlayer(player1);
-                this.updatePlayer(player2);
+                this.updatePlayerELO(player1.playerID, player1.elo);
+                this.updatePlayerELO(player2.playerID, player2.elo);
 
                 const gameInsert = "INSERT INTO games (player1, player2, player1Score, player2Score) VALUES (?,?,?,?)";
                 this.db.run(gameInsert, [player1ID, player2ID, player1Score, player2Score], (err) => {

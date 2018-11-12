@@ -4,7 +4,7 @@ const ADVANCED_K = 16;
 
 class Player {
     constructor(sqlObject) {
-        this.id = sqlObject.playerID;
+        this.playerID = sqlObject.playerID;
         this.name = sqlObject.name;
         this.nickname = sqlObject.nickname;
         this.elo = sqlObject.elo;
