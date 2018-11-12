@@ -15,6 +15,10 @@ class APIManager {
         }
     }
 
+    async getPlayer(req, res, next) {
+
+    }
+
     async getPlayers(req, res, next) {
         let players = await DataManager.getPlayers();
         res.send(players);
@@ -22,7 +26,7 @@ class APIManager {
 
     async deletePlayer(req, res, next) {
         try {
-            await DataManager.deletePlayer(req.params.playerId);
+            await DataManager.deletePlayer(req.params.playerID);
             res.status(200);
             res.send(true);
         } catch (e) {

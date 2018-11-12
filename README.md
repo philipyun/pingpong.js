@@ -44,7 +44,7 @@ Response: `true` on success, `false` on failure
 
 ### Delete Player
 
-Request: DELETE `/api/v1/players/<playerId | int>`
+Request: DELETE `/api/v1/players/<playerID | int>`
 
 Response: `true` on success, `false` on failure
 

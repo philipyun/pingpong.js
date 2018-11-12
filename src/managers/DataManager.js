@@ -44,9 +44,9 @@ class DataManager {
         });
     }
 
-    deletePlayer(playerId) {
+    deletePlayer(playerID) {
         return new Promise((res, rej) => {
-           this.db.run("DELETE FROM players WHERE playerID = (?)", playerId, (err) => {
+           this.db.run("DELETE FROM players WHERE playerID = (?)", playerID, (err) => {
                if (err === null)
                    res();
                else
@@ -55,9 +55,9 @@ class DataManager {
         });
     }
 
-    getPlayer(playerId) {
+    getPlayer(playerID) {
         return new Promise((res, rej) => {
-            this.db.get("SELECT * FROM players WHERE playerID = (?)", playerId, (err, data) => {
+            this.db.get("SELECT * FROM players WHERE playerID = (?)", playerID, (err, data) => {
                 if (err === null)
                     res(new Player(data));
                 else
@@ -116,8 +116,10 @@ class DataManager {
                     return;
                 }
 
+                // did player1 upset player2 and vice versa
                 let player1Upset = (player1.elo > player2.elo) && (player1Score > player2Score);
                 let player2Upset = (player2.elo > player1.elo) && (player2Score > player1Score);
+                // true if an upset happened this game
                 let upset = player1Upset || player2Upset;
 
                 player1.updateRating(player2, player1Score > player2Score);
@@ -148,11 +150,11 @@ class DataManager {
         });
     }
 
-    getMatchupPredictions(player1Id, player2Id) {
+    getMatchupPredictions(player1ID, player2ID) {
         return new Promise(async (res, rej) => {
             try {
-                let player1 = await this.getPlayer(player1Id);
-                let player2 = await this.getPlayer(player2Id);
+                let player1 = await this.getPlayer(player1ID);
+                let player2 = await this.getPlayer(player2ID);
 
                 res({
                     player1Odds: player1.getWinProbabilityAgainst(player2),

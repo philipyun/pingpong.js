@@ -12,9 +12,10 @@ app.use(bodyParser.json());
 
 // PLAYERS API
 app.get(PLAYERS, APIManager.getPlayers);
+app.get(PLAYERS + "/:playerID", APIManager.getPlayer);
 app.post(PLAYERS, APIManager.createPlayer);
 app.delete(PLAYERS, APIManager.deleteAllPlayers);
-app.delete(PLAYERS + "/:playerId", APIManager.deletePlayer);
+app.delete(PLAYERS + "/:playerID", APIManager.deletePlayer);
 
 // GAMES API
 app.get(GAMES, APIManager.getGames);
