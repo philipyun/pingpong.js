@@ -99,25 +99,35 @@ class DataManager {
         })
     }
 
-    createGame(player1, player2, player1_score, player2_score) {
-        return new Promise((res, rej) => {
-            this.db.serialize(() => {
-                for (let playerId of [player1, player2]) {
-                    const playerIdSelect = "SELECT player_id FROM players WHERE player_id=(?)";
-                    this.db.get(playerIdSelect, [playerId], (err, row) => {
-                        if (!row) {
-                            rej(Error('Player ID does not exist: ' + playerId));
-                        }
-                    });
-                }
+    createGame(player1ID, player2ID, player1Score, player2Score) {
+        return new Promise(async (res, rej) => {
+            let player1 = null;
+            let player2 = null;
 
-                const gameInsert = "INSERT INTO games (player1, player2, player1_score, player2_score) VALUES (?,?,?,?)";
-                this.db.run(gameInsert, [player1, player2, player1_score, player2_score], (err) => {
-                    if (err === null)
-                        res();
-                    else
-                        rej(err);
-                });
+            try {
+                player1 = await this.getPlayer(player1ID);
+                player2 = await this.getPlayer(player2ID);
+            } catch (e) {
+                let missingPlayer = player1 === null ? player1ID : player2ID;
+                rej(Error('Player ID does not exist: ' + missingPlayer));
+            }
+
+            let player1Upset = (player1.elo > player2.elo) && (player1Score > player2Score);
+            let player2Upset = (player2.elo > player1.elo) && (player2Score > player1Score);
+            let upset = player1Upset || player2Upset;
+
+            player1.updateRating(player2, player1Score > player2Score);
+            player2.updateRating(player1, player2Score > player1Score);
+
+            this.updatePlayer(player1);
+            this.updatePlayer(player2);
+
+            const gameInsert = "INSERT INTO games (player1, player2, player1Score, player2Score) VALUES (?,?,?,?)";
+            this.db.run(gameInsert, [player1ID, player2ID, player1Score, player2Score], (err) => {
+                if (err === null)
+                    res({upset});
+                else
+                    rej(err);
             });
         });
     }
