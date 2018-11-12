@@ -33,7 +33,7 @@ class DataManager {
 
     deletePlayer(playerId) {
         return new Promise((res, rej) => {
-           this.db.run("DELETE FROM players WHERE player_id = (?)", playerId, (err) => {
+           this.db.run("DELETE FROM players WHERE playerID = (?)", playerId, (err) => {
                if (err === null)
                    res();
                else
@@ -51,7 +51,6 @@ class DataManager {
                     rej(err);
             });
         });
-
     }
 
     resetPlayers() {
@@ -69,7 +68,7 @@ class DataManager {
 
     getGames() {
         return new Promise((res, rej) => {
-            this.db.all("SELECT * FROM games ORDER BY game_id DESC", [], (err, data) => {
+            this.db.all("SELECT * FROM games ORDER BY gameID DESC", [], (err, data) => {
                 if (err === null)
                     res(data);
                 else
