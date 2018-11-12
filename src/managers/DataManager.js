@@ -132,6 +132,22 @@ class DataManager {
             });
         });
     }
+
+    getMatchupPredictions(player1Id, player2Id) {
+        return new Promise(async (res, rej) => {
+            try {
+                let player1 = await this.getPlayer(player1Id);
+                let player2 = await this.getPlayer(player2Id);
+
+                res({
+                    player1Odds: player1.getWinProbabilityAgainst(player2),
+                    player2Odds: player2.getWinProbabilityAgainst(player1)
+                });
+            } catch (e) {
+                rej(e);
+            }
+        });
+    }
 }
 
 let manager = new DataManager();
