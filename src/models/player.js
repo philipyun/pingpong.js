@@ -3,10 +3,11 @@ const INTERMEDIATE_K = 24;
 const ADVANCED_K = 16;
 
 class Player {
-    constructor(id, name, elo) {
-        this.id = id;
-        this.name = name;
-        this.elo = elo;
+    constructor(sqlObject) {
+        this.id = sqlObject.playerID;
+        this.name = sqlObject.name;
+        this.nickname = sqlObject.nickname;
+        this.elo = sqlObject.elo;
     }
 
     getWinProbabilityAgainst(opposingPlayer) {
@@ -29,3 +30,5 @@ class Player {
         return this.elo;
     }
 }
+
+module.exports = Player;
