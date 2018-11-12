@@ -1,6 +1,8 @@
 const sqlite = require('sqlite3').verbose();
 const fs = require('fs');
 
+const Player = require('../models/player');
+
 
 class DataManager {
 
