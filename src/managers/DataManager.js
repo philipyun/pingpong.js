@@ -31,6 +31,17 @@ class DataManager {
         });
     }
 
+    updatePlayerELO(playerID, playerELO) {
+        return new Promise((res, rej) => {
+            this.db.run("UPDATE players SET elo = ? WHERE playerID = ?", [playerELO, playerID], (e) => {
+                if (e === null)
+                    res();
+                else
+                    rej(e);
+            });
+        });
+    }
+
     deletePlayer(playerId) {
         return new Promise((res, rej) => {
            this.db.run("DELETE FROM players WHERE playerID = (?)", playerId, (err) => {
