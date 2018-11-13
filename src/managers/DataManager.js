@@ -128,8 +128,10 @@ class DataManager {
                 this.updatePlayerELO(player1.playerID, player1.elo);
                 this.updatePlayerELO(player2.playerID, player2.elo);
 
-                const gameInsert = "INSERT INTO games (player1, player2, player1Score, player2Score) VALUES (?,?,?,?)";
-                this.db.run(gameInsert, [player1ID, player2ID, player1Score, player2Score], (err) => {
+                const datetime = new Date().toISOString();
+
+                const gameInsert = "INSERT INTO games (player1, player2, player1Score, player2Score, datetime) VALUES (?,?,?,?,?)";
+                this.db.run(gameInsert, [player1ID, player2ID, player1Score, player2Score, datetime], (err) => {
                     if (err === null)
                         res({upset});
                     else
