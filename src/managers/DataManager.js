@@ -90,9 +90,15 @@ class DataManager {
 
     // Games
 
-    getGames() {
+    getGames(playerID=null) {
+        const sql = playerID === null
+            ? "SELECT * FROM games ORDER BY gameID DESC"
+            : "SELECT * FROM games WHERE player1 = (?) OR player2 = (?) ORDER BY gameID DESC";
+
+        const args = playerID === null ? [] : [playerID, playerID];
+
         return new Promise((res, rej) => {
-            this.db.all("SELECT * FROM games ORDER BY gameID DESC", [], (err, data) => {
+            this.db.all(sql, args, (err, data) => {
                 if (err === null)
                     res(data);
                 else

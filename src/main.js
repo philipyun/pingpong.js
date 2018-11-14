@@ -19,6 +19,7 @@ app.delete(PLAYERS + "/:playerID", APIManager.deletePlayer);
 
 // GAMES API
 app.get(GAMES, APIManager.getGames);
+app.get(GAMES + "/:playerID", APIManager.getGames);
 app.post(GAMES, APIManager.createGame);
 app.delete(GAMES, APIManager.deleteAllGames);
 

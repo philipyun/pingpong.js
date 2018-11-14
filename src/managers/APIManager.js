@@ -58,7 +58,7 @@ class APIManager {
     // Games
 
     async getGames(req, res, next) {
-        let games = await DataManager.getGames();
+        let games = await DataManager.getGames(req.params.playerID);
         res.send(games);
     }
 
