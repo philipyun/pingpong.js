@@ -89,31 +89,21 @@ class APIManager {
     // Stats
 
     async getStats(req, res, next) {
+        let {playerID} = req.params;
+        try {
+            let stats = await DataManager.getStats(playerID);
+            res.status(200);
+            res.send(stats);
+        } catch (e) {
+            res.status(500);
+            res.send(e.message);
+        }
+    }
+
+    async getAllStats(req, res, next) {
         try {
             let playerIDs = await DataManager.getPlayerIDs();
-            let allPlayerStats = await Promise.all(playerIDs.map(async (playerID) => {
-                let stats = new Stats();
-                let games = await DataManager.getGames(playerID);
-                for (let game of games) {
-                    if (playerID === game.player1) {
-                        stats.addMatch(game.player1Score, game.player2Score);
-                    } else {
-                        stats.addMatch(game.player2Score, game.player1Score);
-                    }
-                }
-
-                return {
-                    player: playerID,
-                    gamesPlayed: stats.gamesPlayed,
-                    wins: stats.wins,
-                    losses: stats.losses,
-                    overtimeLosses: stats.overtimeLosses,
-                    lastTen: stats.lastTen,
-                    winPercent: stats.winPercent,
-                    streak: stats.streak,
-                };
-            }));
-
+            let allPlayerStats = await Promise.all(playerIDs.map((playerID) => DataManager.getStats(playerID)));
             res.status(200);
             res.send(allPlayerStats);
         } catch (e) {
