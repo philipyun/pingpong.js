@@ -84,6 +84,20 @@ class APIManager {
             res.send(e.message);
         }
     }
+
+    // Matchup
+
+    async getMatchup(req, res, next) {
+        let {player1ID, player2ID} = req.params;
+        try {
+            let odds = await DataManager.getMatchupPredictions(player1ID, player2ID);
+            res.status(200);
+            res.send(odds);
+        } catch (e) {
+            res.status(400);
+            res.send(e.message);
+        }
+    }
 }
 
 let manager = new APIManager();

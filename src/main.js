@@ -7,6 +7,7 @@ const APIManager = require("./managers/APIManager");
 const V1 = "/api/v1";
 const PLAYERS = V1 + "/players";
 const GAMES = V1 + "/games";
+const MATCHUP = V1 + "/matchup/:player1ID/:player2ID";
 
 app.use(bodyParser.json());
 
@@ -22,6 +23,9 @@ app.get(GAMES, APIManager.getGames);
 app.get(GAMES + "/:playerID", APIManager.getGames);
 app.post(GAMES, APIManager.createGame);
 app.delete(GAMES, APIManager.deleteAllGames);
+
+// MATCHUP API
+app.get(MATCHUP, APIManager.getMatchup)
 
 
 app.listen(8080);
