@@ -77,6 +77,19 @@ class DataManager {
         });
     }
 
+    getPlayerIDs() {
+        return new Promise((res, rej) => {
+            this.db.all("SELECT playerID FROM players", [], (err, data) => {
+                if (err === null) {
+                    let idsArray = data.map((player) => player.playerID);
+                    res(idsArray);
+                }
+                else
+                    rej(err);
+            });
+        });
+    }
+
     resetPlayers() {
         return new Promise((res, rej) => {
             this.db.run("DELETE FROM players", [], (err) => {
@@ -92,8 +105,8 @@ class DataManager {
 
     getGames(playerID=null) {
         const sql = playerID === null
-            ? "SELECT * FROM games ORDER BY gameID DESC"
-            : "SELECT * FROM games WHERE player1 = (?) OR player2 = (?) ORDER BY gameID DESC";
+            ? "SELECT * FROM games ORDER BY datetime DESC"
+            : "SELECT * FROM games WHERE player1 = (?) OR player2 = (?) ORDER BY datetime DESC";
 
         const args = playerID === null ? [] : [playerID, playerID];
 
