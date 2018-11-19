@@ -1,19 +1,19 @@
 require('./playerStats');
 
 class Standings {
-    constructor(games, playerIDs) {
+    constructor(games, playerELOs) {
         this.games = games;
         this.standingsMap = {};
         this.standingsTable = [];
 
-        this.initTable();
+        this.initTable(playerELOs);
         this.accumlateBasicStats();
         this.finalizeStats();
     }
 
     initTable() {
-        for (let id of playerIDs) {
-            this.standingsMap[id] = new PlayerStats(id);
+        for (let {playerID, elo} of playerELOs) {
+            this.standingsMap[playerID] = new PlayerStats(playerID, elo);
         }
     }
 

@@ -3,8 +3,8 @@ const Streak = require('./streak');
 
 class PlayerStats {
 
-    static IndividualStats(playerID, games) {
-        let stats = new PlayerStats(playerID);
+    static IndividualStats(playerID, elo, games) {
+        let stats = new PlayerStats(playerID, elo);
 
         for (let game of games) {
             let {winner, loser, winningScore, losingScore, trollGame, overTimeGame, upset} = game.results;
@@ -24,8 +24,9 @@ class PlayerStats {
         return stats;
     }
 
-    constructor(id) {
+    constructor(id, elo) {
         this.playerID = id;
+        this.eloScore = elo;
 
         this.wins = 0;
         this.losses = 0;

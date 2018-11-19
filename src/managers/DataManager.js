@@ -76,11 +76,11 @@ class DataManager {
         });
     }
 
-    getPlayerIDs() {
+    getPlayerELOs() {
         return new Promise((res, rej) => {
-            this.db.all("SELECT playerID FROM players", [], (err, data) => {
+            this.db.all("SELECT playerID, elo FROM players", [], (err, data) => {
                 if (err === null)
-                    res(data.map((player) => player.playerID));
+                    res(data);
                 else
                     rej(err);
             });
@@ -213,14 +213,15 @@ class DataManager {
     // Stats
 
     async getStats(playerID) {
+        let player = await this.getPlayer(playerID);
         let games = await this.getGames(playerID);
-        return PlayerStats.IndividualStats(playerID, games);
+        return PlayerStats.IndividualStats(playerID, player.elo, games);
     }
 
     async getStandingsTable() {
         let games = await this.getGames();
-        let playerIDs = await this.getPlayerIDs();
-        let standings = new Standings(games, playerIDs);
+        let playerELOs = await this.getPlayerELOs();
+        let standings = new Standings(games, playerELOs);
 
         return standings.getStandingsTable();
     }
