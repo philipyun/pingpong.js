@@ -11,7 +11,7 @@ class APIManager {
             res.send(true);
         } catch (e) {
             res.status(500);
-            res.send(e.message);
+            res.send(e);
         }
     }
 
@@ -24,7 +24,7 @@ class APIManager {
         } catch (e) {
             // should check type of error and possibly send 404
             res.status(500);
-            res.send(e.message);
+            res.send(e);
         }
     }
 
@@ -40,7 +40,7 @@ class APIManager {
             res.send(true);
         } catch (e) {
             res.status(500);
-            res.send(e.message);
+            res.send(e);
         }
     }
 
@@ -51,7 +51,7 @@ class APIManager {
             res.send(true);
         } catch (e) {
             res.status(500);
-            res.send(e.message);
+            res.send(e);
         }
     }
 
@@ -70,7 +70,7 @@ class APIManager {
             res.send(true);
         } catch (e) {
             res.status(500);
-            res.send(e.message);
+            res.send(e);
         }
     }
 
@@ -81,7 +81,7 @@ class APIManager {
             res.send(true);
         } catch (e) {
             res.status(500);
-            res.send(e.message);
+            res.send(e);
         }
     }
 
@@ -95,7 +95,7 @@ class APIManager {
             res.send(stats);
         } catch (e) {
             res.status(500);
-            res.send(e.message);
+            res.send(e);
         }
     }
 
@@ -106,7 +106,7 @@ class APIManager {
             res.send(standings);
         } catch (e) {
             res.status(500);
-            res.send(e.message);
+            res.send(e);
         }
     }
 
@@ -120,7 +120,7 @@ class APIManager {
             res.send(odds);
         } catch (e) {
             res.status(500);
-            res.send(e.message);
+            res.send(e);
         }
     }
 }

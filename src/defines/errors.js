@@ -1,5 +1,18 @@
 const ERRORS = {
-
+    CREATE_PLAYER: 0,
+    UPDATE_PLAYER: 1,
+    UPDATE_PLAYER_ELO: 2,
+    DELETE_PLAYER: 3,
+    GET_PLAYER: 4,
+    GET_PLAYERS: 5,
+    GET_PLAYER_ELOS: 6,
+    RESET_PLAYERS: 7,
+    GET_GAMES: 8,
+    CREATE_GAME: 9,
+    RESET_GAMES: 10,
+    GET_MATCHUP: 11,
+    GET_STATS: 12,
+    GET_STANDINGS: 13,
 };
 
 Object.freeze(ERRORS);

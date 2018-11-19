@@ -1,7 +1,16 @@
 const sqlite = require('sqlite3').verbose();
 const fs = require('fs');
 
+const ERRORS = require('../defines/errors');
 const {Player, PlayerStats, Game} = require('../models');
+
+class DataManagerError {
+    constructor(errorCode, data) {
+        this.status = errorCode;
+        this.data = data;
+    }
+}
+
 
 class DataManager {
 
@@ -23,77 +32,77 @@ class DataManager {
 
     createPlayer(playerName, nickname="") {
         return new Promise((res, rej) => {
-            this.db.run("INSERT INTO players (name, nickname) VALUES (?, ?)", [playerName, nickname], (e) => {
-                if (e === null)
+            this.db.run("INSERT INTO players (name, nickname) VALUES (?, ?)", [playerName, nickname], (error) => {
+                if (error === null)
                     res();
                 else
-                    rej(e);
+                    rej(new DataManagerError(ERRORS.CREATE_PLAYER, error));
             });
         });
     }
 
     updatePlayerELO(playerID, playerELO) {
         return new Promise((res, rej) => {
-            this.db.run("UPDATE players SET elo = ? WHERE playerID = ?", [playerELO, playerID], (e) => {
-                if (e === null)
+            this.db.run("UPDATE players SET elo = ? WHERE playerID = ?", [playerELO, playerID], (error) => {
+                if (error === null)
                     res();
                 else
-                    rej(e);
+                    rej(new DataManagerError(ERRORS.UPDATE_PLAYER_ELO, {error, playerID}));
             });
         });
     }
 
     deletePlayer(playerID) {
         return new Promise((res, rej) => {
-           this.db.run("DELETE FROM players WHERE playerID = (?)", playerID, (err) => {
-               if (err === null)
+           this.db.run("DELETE FROM players WHERE playerID = (?)", playerID, (error) => {
+               if (error === null)
                    res();
                else
-                   rej(err)
+                   rej(new DataManagerError(ERRORS.DELETE_PLAYER, {error, playerID}))
            })
         });
     }
 
     getPlayer(playerID) {
         return new Promise((res, rej) => {
-            this.db.get("SELECT * FROM players WHERE playerID = (?)", playerID, (err, data) => {
-                if (err === null)
-                    res(new Player(data));
+            this.db.get("SELECT * FROM players WHERE playerID = (?)", playerID, (error, data) => {
+                if (data === undefined)
+                    rej(new DataManagerError(ERRORS.GET_PLAYER, {error, playerID}));
                 else
-                    rej(err);
+                    res(new Player(data));
             });
         });
     }
 
     getPlayers() {
         return new Promise((res, rej) => {
-            this.db.all("SELECT * FROM players", [], (err, data) => {
-                if (err === null)
+            this.db.all("SELECT * FROM players", [], (error, data) => {
+                if (error === null)
                     res(data.map(playerData => new Player(playerData)));
                 else
-                    rej(err);
+                    rej(new DataManagerError(ERRORS.GET_PLAYERS, {error}));
             });
         });
     }
 
     getPlayerELOs() {
         return new Promise((res, rej) => {
-            this.db.all("SELECT playerID, elo FROM players", [], (err, data) => {
-                if (err === null)
+            this.db.all("SELECT playerID, elo FROM players", [], (error, data) => {
+                if (error === null && Array.isArray(data) && data.length !== 0)
                     res(data);
                 else
-                    rej(err);
+                    rej(new DataManagerError(ERRORS.GET_PLAYER_ELOS, {error}));
             });
         });
     }
 
     resetPlayers() {
         return new Promise((res, rej) => {
-            this.db.run("DELETE FROM players", [], (err) => {
-                if (err === null)
+            this.db.run("DELETE FROM players", [], (error) => {
+                if (error === null)
                     res();
                 else
-                    rej();
+                    rej(new DataManagerError(ERRORS.RESET_PLAYERS, {error}));
             });
         });
     }
@@ -108,47 +117,38 @@ class DataManager {
         const args = playerID === null ? [] : [playerID, playerID];
 
         return new Promise((res, rej) => {
-            this.db.all(sql, args, (err, data) => {
-                if (err === null)
+            this.db.all(sql, args, (error, data) => {
+                if (error === null)
                     res(data.map(gameData => new Game(gameData)));
                 else
-                    rej(err);
+                    rej(new DataManagerError(ERRORS.GET_GAMES, {error}));
             })
         })
     }
 
-    createGame(player1ID, player2ID, player1Score, player2Score) {
-        return new Promise((res, rej) => {
-            this.db.serialize(async () => {
-                let player1 = null;
-                let player2 = null;
+    async createGame(player1ID, player2ID, player1Score, player2Score) {
+        try {
+            let player1 = await this.getPlayer(player1ID);
+            let player2 = await this.getPlayer(player2ID);
 
-                try {
-                    player1 = await this.getPlayer(player1ID);
-                    player2 = await this.getPlayer(player2ID);
-                } catch (e) {
-                    let missingPlayer = player1 === null ? player1ID : player2ID;
-                    rej(Error('Player ID does not exist: ' + missingPlayer));
-                    return;
-                }
+            let player1Odds = player1.getWinProbabilityAgainst(player2);
+            let player2Odds = player2.getWinProbabilityAgainst(player1);
 
-                let player1Odds = player1.getWinProbabilityAgainst(player2);
-                let player2Odds = player2.getWinProbabilityAgainst(player1);
+            // did player1 upset player2 and vice versa
+            let player1Upset = (player1.elo > player2.elo) && (player1Score > player2Score);
+            let player2Upset = (player2.elo > player1.elo) && (player2Score > player1Score);
+            // true if an upset happened this game
+            let upset = player1Upset || player2Upset;
 
-                // did player1 upset player2 and vice versa
-                let player1Upset = (player1.elo > player2.elo) && (player1Score > player2Score);
-                let player2Upset = (player2.elo > player1.elo) && (player2Score > player1Score);
-                // true if an upset happened this game
-                let upset = player1Upset || player2Upset;
+            player1.updateRating(player2, player1Score > player2Score);
+            player2.updateRating(player1, player2Score > player1Score);
 
-                player1.updateRating(player2, player1Score > player2Score);
-                player2.updateRating(player1, player2Score > player1Score);
+            this.updatePlayerELO(player1.playerID, player1.elo);
+            this.updatePlayerELO(player2.playerID, player2.elo);
 
-                this.updatePlayerELO(player1.playerID, player1.elo);
-                this.updatePlayerELO(player2.playerID, player2.elo);
+            const datetime = new Date().toISOString();
 
-                const datetime = new Date().toISOString();
-
+            return new Promise((res, rej) => {
                 const gameInsert = ("INSERT INTO games (player1, player2, player1Score, player2Score, player1Odds," +
                     " player2Odds, upset, datetime) VALUES (?,?,?,?,?)");
 
@@ -163,8 +163,8 @@ class DataManager {
                     datetime
                 ];
 
-                this.db.run(gameInsert, args, (err) => {
-                    if (err === null) {
+                this.db.run(gameInsert, args, (error) => {
+                    if (error === null) {
                         res({
                             player1ID,
                             player2ID,
@@ -176,60 +176,76 @@ class DataManager {
                             datetime
                         });
                     } else {
-                        rej(err);
+                        rej(new DataManagerError(ERRORS.CREATE_GAME), {error});
                     }
                 });
             });
-        });
+        } catch (e) {
+            throw new DataManagerError(ERRORS.CREATE_GAME, {
+               traceError: e
+            });
+        }
     }
 
     resetGames() {
         return new Promise((res, rej) => {
-            this.db.run("DELETE FROM games", [], (err) => {
-                if (err === null)
+            this.db.run("DELETE FROM games", [], (error) => {
+                if (error === null)
                     res();
                 else
-                    rej();
+                    rej(new DataManagerError(ERRORS.RESET_GAMES, {error}));
             });
         });
     }
 
-    getMatchupPredictions(player1ID, player2ID) {
-        return new Promise(async (res, rej) => {
-            try {
-                let player1 = await this.getPlayer(player1ID);
-                let player2 = await this.getPlayer(player2ID);
+    async getMatchupPredictions(player1ID, player2ID) {
+        try {
+            let player1 = await this.getPlayer(player1ID);
+            let player2 = await this.getPlayer(player2ID);
 
-                res({
-                    player1Odds: player1.getWinProbabilityAgainst(player2),
-                    player2Odds: player2.getWinProbabilityAgainst(player1)
-                });
-            } catch (e) {
-                rej(e);
-            }
-        });
+            return {
+                player1Odds: player1.getWinProbabilityAgainst(player2),
+                player2Odds: player2.getWinProbabilityAgainst(player1)
+            };
+        } catch (e) {
+            throw new DataManagerError(ERRORS.GET_MATCHUP, {
+                traceError: e
+            });
+        }
     }
 
     // Stats
 
     async getStats(playerID) {
-        let player = await this.getPlayer(playerID);
-        let games = await this.getGames(playerID);
-        return PlayerStats.IndividualStats(playerID, player.elo, games);
+        try {
+            let player = this.getPlayer(playerID);
+            let games = await this.getGames(playerID);
+            return PlayerStats.IndividualStats(playerID, player.elo, games);
+        } catch (e) {
+            throw new DataManagerError(ERRORS.GET_STATS, {
+                traceError: e
+            });
+        }
     }
 
     async getStandingsTable() {
-        let games = await this.getGames();
-        let playerELOs = await this.getPlayerELOs();
-        let standings = new Standings(games, playerELOs);
+        try {
+            let games = await this.getGames();
+            let playerELOs = await this.getPlayerELOs();
+            let standings = new Standings(games, playerELOs);
 
-        return standings.getStandingsTable();
+            return standings.getStandingsTable();
+        } catch (e) {
+            throw new DataManagerError(ERRORS.GET_STANDINGS, {
+                traceError: e
+            });
+        }
     }
 }
 
 let manager = new DataManager();
-
 manager.createTables();
+
 module.exports = manager;
 
 
