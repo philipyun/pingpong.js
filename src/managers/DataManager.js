@@ -129,18 +129,19 @@ class DataManager {
     async _createGame(player1ID, player2ID, player1Score, player2Score) {
         let player1 = await this.getPlayer(player1ID);
         let player2 = await this.getPlayer(player2ID);
-
         let player1Odds = player1.getWinProbabilityAgainst(player2);
         let player2Odds = player2.getWinProbabilityAgainst(player1);
 
-        // did player1 upset player2 and vice versa
-        let player1Upset = (player1.elo > player2.elo) && (player1Score > player2Score);
-        let player2Upset = (player2.elo > player1.elo) && (player2Score > player1Score);
-        // true if an upset happened this game
-        let upset = player1Upset || player2Upset;
+        let winner = (player1Score > player2Score) ? player1 : player2;
+        let loser = (player1Score > player2Score) ? player2 : player1;
+        let winnerOdds = (player1Score > player2Score) ? player1Odds : player2Odds;
+        let loserOdds = (player1Score > player2Score) ? player2Odds : player1Odds;
+        let winningScore = Math.max(player1Score, player2Score);
+        let losingScore = Math.min(player1Score, player2Score);
 
-        player1.updateRating(player2, player1Score > player2Score);
-        player2.updateRating(player1, player2Score > player1Score);
+
+        player1.updateRating(player2, winner === player1ID);
+        player2.updateRating(player1, winner === player2ID);
 
         this.updatePlayerELO(player1.playerID, player1.elo);
         this.updatePlayerELO(player2.playerID, player2.elo);
@@ -148,30 +149,28 @@ class DataManager {
         const datetime = new Date().toISOString();
 
         return new Promise((res, rej) => {
-            const gameInsert = ("INSERT INTO games (player1, player2, player1Score, player2Score, player1Odds," +
-                " player2Odds, upset, datetime) VALUES (?,?,?,?,?)");
+            const gameInsert = ("INSERT INTO games (winner, loser, winningScore, losingScore, winnerOdds," +
+                " loserOdds, datetime) VALUES (?,?,?,?,?)");
 
             let args = [
-                player1ID,
-                player2ID,
-                player1Score,
-                player2Score,
-                player1Odds,
-                player2Odds,
-                upset,
+                winner,
+                loser,
+                winningScore,
+                losingScore,
+                winnerOdds,
+                loserOdds,
                 datetime
             ];
 
             this.db.run(gameInsert, args, (error) => {
                 if (error === null) {
                     res({
-                        player1ID,
-                        player2ID,
-                        player1Score,
-                        player2Score,
-                        player1Odds,
-                        player2Odds,
-                        upset,
+                        winner,
+                        loser,
+                        winningScore,
+                        losingScore,
+                        winnerOdds,
+                        loserOdds,
                         datetime
                     });
                 } else {
@@ -180,7 +179,6 @@ class DataManager {
             });
         });
     }
-
 
     async createGame(player1ID, player2ID, player1Score, player2Score) {
         try {

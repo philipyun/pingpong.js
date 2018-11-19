@@ -1,33 +1,29 @@
-const TROLL_LOSE_MAX_SCORE = 2;
+const TROLL_LOSE_MAX_SCORE = 0;
 const OVERTIME_MIN_SCORE = 10;
 
 class Game {
     constructor(sqlObject) {
-        this.player1 = sqlObject.player1;
-        this.player2 = sqlObject.player2;
-        this.player1Score = sqlObject.player1Score;
-        this.player2Score = sqlObject.player2Score;
-        this.player1Odds = sqlObject.player1Odds;
-        this.player2Odds = sqlObject.player2Odds;
-        this.upset = !!sqlObject.upset;
+        this.winner = sqlObject.winner;
+        this.loser = sqlObject.loser;
+        this.winningScore = sqlObject.winningScore;
+        this.losingScore = sqlObject.losingScore;
+        this.winnerOdds = sqlObject.winnerOdds;
+        this.loserOdds = sqlObject.loserOdds;
         this.datetime = sqlObject.datetime;
+        this.upset = this.winnerOdds < this.loserOdds;
     }
 
     get results() {
-        let winner = (this.player1Score > this.player2Score) ? this.player1 : this.player2;
-        let loser = (this.player1Score > this.player2Score) ? this.player2 : this.player1;
-        let winningScore = Math.max(this.player1Score, this.player2Score);
-        let losingScore = Math.min(this.player1Score, this.player2Score);
-        let trollGame = losingScore <= TROLL_LOSE_MAX_SCORE;
-        let overTimeGame = losingScore >= OVERTIME_MIN_SCORE;
+        let trollGame = this.losingScore <= TROLL_LOSE_MAX_SCORE;
+        let overTimeGame = this.losingScore >= OVERTIME_MIN_SCORE;
 
         return {
-            winner,
-            loser,
-            winningScore,
-            losingScore,
             trollGame,
             overTimeGame,
+            winner: this.winner,
+            loser: this.loser,
+            winningScore: this.winningScore,
+            losingScore: this.losingScore,
             upset: this.upset
         }
     }
