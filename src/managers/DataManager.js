@@ -242,7 +242,7 @@ class DataManager {
         let playerIDs = await this.getPlayerIDs();
         let standings = new Standings(games, playerIDs);
 
-        return standings.getTable();
+        return standings.getStandingsTable();
     }
 }
 
