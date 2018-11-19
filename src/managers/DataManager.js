@@ -236,6 +236,14 @@ class DataManager {
             });
         });
     }
+
+    async getStandingsTable() {
+        let games = await this.getGames();
+        let playerIDs = await this.getPlayerIDs();
+        let standings = new Standings(games, playerIDs);
+
+        return standings.getTable();
+    }
 }
 
 let manager = new DataManager();
