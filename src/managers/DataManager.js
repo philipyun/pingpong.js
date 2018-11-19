@@ -69,7 +69,7 @@ class DataManager {
         return new Promise((res, rej) => {
             this.db.all("SELECT * FROM players", [], (err, data) => {
                 if (err === null)
-                    res(data);
+                    res(data.map(playerData => new Player(playerData)));
                 else
                     rej(err);
             });
@@ -79,10 +79,8 @@ class DataManager {
     getPlayerIDs() {
         return new Promise((res, rej) => {
             this.db.all("SELECT playerID FROM players", [], (err, data) => {
-                if (err === null) {
-                    let idsArray = data.map((player) => player.playerID);
-                    res(idsArray);
-                }
+                if (err === null)
+                    res(data.map((player) => player.playerID));
                 else
                     rej(err);
             });
