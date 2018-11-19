@@ -36,7 +36,7 @@ class DataManager {
                 if (error === null)
                     res();
                 else
-                    rej(new DataManagerError(ERRORS.CREATE_PLAYER, error));
+                    rej(new DataManagerError(ERRORS.CREATE_PLAYER, {error}));
             });
         });
     }
@@ -126,64 +126,67 @@ class DataManager {
         })
     }
 
+    async _createGame(player1ID, player2ID, player1Score, player2Score) {
+        let player1 = await this.getPlayer(player1ID);
+        let player2 = await this.getPlayer(player2ID);
+
+        let player1Odds = player1.getWinProbabilityAgainst(player2);
+        let player2Odds = player2.getWinProbabilityAgainst(player1);
+
+        // did player1 upset player2 and vice versa
+        let player1Upset = (player1.elo > player2.elo) && (player1Score > player2Score);
+        let player2Upset = (player2.elo > player1.elo) && (player2Score > player1Score);
+        // true if an upset happened this game
+        let upset = player1Upset || player2Upset;
+
+        player1.updateRating(player2, player1Score > player2Score);
+        player2.updateRating(player1, player2Score > player1Score);
+
+        this.updatePlayerELO(player1.playerID, player1.elo);
+        this.updatePlayerELO(player2.playerID, player2.elo);
+
+        const datetime = new Date().toISOString();
+
+        return new Promise((res, rej) => {
+            const gameInsert = ("INSERT INTO games (player1, player2, player1Score, player2Score, player1Odds," +
+                " player2Odds, upset, datetime) VALUES (?,?,?,?,?)");
+
+            let args = [
+                player1ID,
+                player2ID,
+                player1Score,
+                player2Score,
+                player1Odds,
+                player2Odds,
+                upset,
+                datetime
+            ];
+
+            this.db.run(gameInsert, args, (error) => {
+                if (error === null) {
+                    res({
+                        player1ID,
+                        player2ID,
+                        player1Score,
+                        player2Score,
+                        player1Odds,
+                        player2Odds,
+                        upset,
+                        datetime
+                    });
+                } else {
+                    rej(new DataManagerError(ERRORS.CREATE_GAME), {error});
+                }
+            });
+        });
+    }
+
+
     async createGame(player1ID, player2ID, player1Score, player2Score) {
         try {
-            let player1 = await this.getPlayer(player1ID);
-            let player2 = await this.getPlayer(player2ID);
-
-            let player1Odds = player1.getWinProbabilityAgainst(player2);
-            let player2Odds = player2.getWinProbabilityAgainst(player1);
-
-            // did player1 upset player2 and vice versa
-            let player1Upset = (player1.elo > player2.elo) && (player1Score > player2Score);
-            let player2Upset = (player2.elo > player1.elo) && (player2Score > player1Score);
-            // true if an upset happened this game
-            let upset = player1Upset || player2Upset;
-
-            player1.updateRating(player2, player1Score > player2Score);
-            player2.updateRating(player1, player2Score > player1Score);
-
-            this.updatePlayerELO(player1.playerID, player1.elo);
-            this.updatePlayerELO(player2.playerID, player2.elo);
-
-            const datetime = new Date().toISOString();
-
-            return new Promise((res, rej) => {
-                const gameInsert = ("INSERT INTO games (player1, player2, player1Score, player2Score, player1Odds," +
-                    " player2Odds, upset, datetime) VALUES (?,?,?,?,?)");
-
-                let args = [
-                    player1ID,
-                    player2ID,
-                    player1Score,
-                    player2Score,
-                    player1Odds,
-                    player2Odds,
-                    upset,
-                    datetime
-                ];
-
-                this.db.run(gameInsert, args, (error) => {
-                    if (error === null) {
-                        res({
-                            player1ID,
-                            player2ID,
-                            player1Score,
-                            player2Score,
-                            player1Odds,
-                            player2Odds,
-                            upset,
-                            datetime
-                        });
-                    } else {
-                        rej(new DataManagerError(ERRORS.CREATE_GAME), {error});
-                    }
-                });
-            });
-        } catch (e) {
-            throw new DataManagerError(ERRORS.CREATE_GAME, {
-               traceError: e
-            });
+            return await this._createGame(player1ID, player2ID, player1Score, player2Score);
+        } catch (reason) {
+            throw new DataManagerError(ERROR.CREATE_GAME, {reason});
         }
     }
 
@@ -207,11 +210,10 @@ class DataManager {
                 player1Odds: player1.getWinProbabilityAgainst(player2),
                 player2Odds: player2.getWinProbabilityAgainst(player1)
             };
-        } catch (e) {
-            throw new DataManagerError(ERRORS.GET_MATCHUP, {
-                traceError: e
-            });
+        } catch (reason) {
+            throw new DataManagerError(ERROR.GET_MATCHUP, {reason});
         }
+
     }
 
     // Stats
@@ -221,11 +223,10 @@ class DataManager {
             let player = this.getPlayer(playerID);
             let games = await this.getGames(playerID);
             return PlayerStats.IndividualStats(playerID, player.elo, games);
-        } catch (e) {
-            throw new DataManagerError(ERRORS.GET_STATS, {
-                traceError: e
-            });
+        } catch (reason) {
+            throw new DataManagerError(ERROR.GET_STATS, {reason});
         }
+
     }
 
     async getStandingsTable() {
@@ -235,10 +236,8 @@ class DataManager {
             let standings = new Standings(games, playerELOs);
 
             return standings.getStandingsTable();
-        } catch (e) {
-            throw new DataManagerError(ERRORS.GET_STANDINGS, {
-                traceError: e
-            });
+        } catch (reason) {
+            throw new DataManagerError(ERROR.GET_STANDINGS, {reason});
         }
     }
 }
