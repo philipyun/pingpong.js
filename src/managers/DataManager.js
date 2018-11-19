@@ -136,6 +136,9 @@ class DataManager {
                     return;
                 }
 
+                let player1Odds = player1.getWinProbabilityAgainst(player2);
+                let player2Odds = player2.getWinProbabilityAgainst(player1);
+
                 // did player1 upset player2 and vice versa
                 let player1Upset = (player1.elo > player2.elo) && (player1Score > player2Score);
                 let player2Upset = (player2.elo > player1.elo) && (player2Score > player1Score);
@@ -150,12 +153,35 @@ class DataManager {
 
                 const datetime = new Date().toISOString();
 
-                const gameInsert = "INSERT INTO games (player1, player2, player1Score, player2Score, datetime) VALUES (?,?,?,?,?)";
-                this.db.run(gameInsert, [player1ID, player2ID, player1Score, player2Score, datetime], (err) => {
-                    if (err === null)
-                        res({upset});
-                    else
+                const gameInsert = ("INSERT INTO games (player1, player2, player1Score, player2Score, player1Odds," +
+                    " player2Odds, upset, datetime) VALUES (?,?,?,?,?)");
+
+                let args = [
+                    player1ID,
+                    player2ID,
+                    player1Score,
+                    player2Score,
+                    player1Odds,
+                    player2Odds,
+                    upset,
+                    datetime
+                ];
+
+                this.db.run(gameInsert, args, (err) => {
+                    if (err === null) {
+                        res({
+                            player1ID,
+                            player2ID,
+                            player1Score,
+                            player2Score,
+                            player1Odds,
+                            player2Odds,
+                            upset,
+                            datetime
+                        });
+                    } else {
                         rej(err);
+                    }
                 });
             });
         });
