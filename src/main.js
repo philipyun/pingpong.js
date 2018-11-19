@@ -26,7 +26,7 @@ app.post(GAMES, APIManager.createGame);
 app.delete(GAMES, APIManager.deleteAllGames);
 
 // STATS API
-app.get(STATS, APIManager.getAllStats);
+app.get(STATS, APIManager.getStandings);
 app.get(STATS + "/:playerID", APIManager.getStats);
 
 // MATCHUP API

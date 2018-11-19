@@ -99,12 +99,11 @@ class APIManager {
         }
     }
 
-    async getAllStats(req, res, next) {
+    async getStandings(req, res, next) {
         try {
-            let playerIDs = await DataManager.getPlayerIDs();
-            let allPlayerStats = await Promise.all(playerIDs.map((playerID) => DataManager.getStats(playerID)));
+            let standings = await DataManager.getStandingsTable();
             res.status(200);
-            res.send(allPlayerStats);
+            res.send(standings);
         } catch (e) {
             res.status(500);
             res.send(e.message);
