@@ -114,7 +114,7 @@ class DataManager {
         return new Promise((res, rej) => {
             this.db.all(sql, args, (err, data) => {
                 if (err === null)
-                    res(data);
+                    res(data.map(gameData => new Game(gameData)));
                 else
                     rej(err);
             })
