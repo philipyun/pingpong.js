@@ -150,7 +150,7 @@ class DataManager {
 
         return new Promise((res, rej) => {
             const gameInsert = ("INSERT INTO games (winner, loser, winningScore, losingScore, winnerOdds," +
-                " loserOdds, datetime) VALUES (?,?,?,?,?)");
+                " loserOdds, datetime) VALUES (?,?,?,?,?,?,?)");
 
             let args = [
                 winner,
