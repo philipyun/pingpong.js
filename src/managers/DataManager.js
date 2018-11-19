@@ -1,7 +1,7 @@
 const sqlite = require('sqlite3').verbose();
 const fs = require('fs');
 
-const {Stats, Player, Game} = require('../models');
+const {Player, PlayerStats, Game} = require('../models');
 
 class DataManager {
 
@@ -212,29 +212,26 @@ class DataManager {
 
     // Stats
 
-    getStats(playerID) {
-        return new Promise(async (res, rej) => {
-            let games = await this.getGames(playerID);
-            let stats = new Stats();
-            for (let game of games) {
-                if (playerID === game.player1) {
-                    stats.addMatch(game.player1Score, game.player2Score);
-                } else {
-                    stats.addMatch(game.player2Score, game.player1Score);
-                }
-            }
+    async getStats(playerID) {
+        let games = await this.getGames(playerID);
+        let stats = new PlayerStats(playerID);
 
-            res({
-                player: playerID,
-                gamesPlayed: stats.gamesPlayed,
-                wins: stats.wins,
-                losses: stats.losses,
-                overtimeLosses: stats.overtimeLosses,
-                lastTen: stats.lastTen,
-                winPercent: stats.winPercent,
-                streak: stats.streak,
-            });
-        });
+        for (let game of games) {
+            let {winner, loser, winningScore, losingScore, trollGame, overTimeGame, upset} = game.results;
+
+            if (winner === playerID) {
+                stats.addWin(winningScore, losingScore, trollGame, overTimeGame, upset);
+            } else {
+                stats.addLoss(losingScore, winningScore, trollGame, overTimeGame, upset);
+            }
+        }
+
+        stats.finalizeStats();
+
+        // we don't need GB stat when looking at an individual player
+        delete stats.gamesBehind;
+
+        return stats;
     }
 
     async getStandingsTable() {

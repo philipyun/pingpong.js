@@ -1,4 +1,3 @@
-const Stats = require("../models/stats");
 const DataManager = require("./DataManager");
 
 class APIManager {
