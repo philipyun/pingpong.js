@@ -214,24 +214,7 @@ class DataManager {
 
     async getStats(playerID) {
         let games = await this.getGames(playerID);
-        let stats = new PlayerStats(playerID);
-
-        for (let game of games) {
-            let {winner, loser, winningScore, losingScore, trollGame, overTimeGame, upset} = game.results;
-
-            if (winner === playerID) {
-                stats.addWin(winningScore, losingScore, trollGame, overTimeGame, upset);
-            } else {
-                stats.addLoss(losingScore, winningScore, trollGame, overTimeGame, upset);
-            }
-        }
-
-        stats.finalizeStats();
-
-        // we don't need GB stat when looking at an individual player
-        delete stats.gamesBehind;
-
-        return stats;
+        return PlayerStats.IndividualStats(playerID, games);
     }
 
     async getStandingsTable() {

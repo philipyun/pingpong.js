@@ -2,6 +2,28 @@ const LastTenGames = require('./lastTenGames');
 const Streak = require('./streak');
 
 class PlayerStats {
+
+    static IndividualStats(playerID, games) {
+        let stats = new PlayerStats(playerID);
+
+        for (let game of games) {
+            let {winner, loser, winningScore, losingScore, trollGame, overTimeGame, upset} = game.results;
+
+            if (winner === playerID) {
+                stats.addWin(winningScore, losingScore, trollGame, overTimeGame, upset);
+            } else {
+                stats.addLoss(losingScore, winningScore, trollGame, overTimeGame, upset);
+            }
+        }
+
+        stats.finalizeStats();
+
+        // we don't need GB stat when looking at an individual player
+        delete stats.gamesBehind;
+
+        return stats;
+    }
+
     constructor(id) {
         this.playerID = id;
 
