@@ -3,6 +3,7 @@ const OVERTIME_MIN_SCORE = 10;
 
 class Game {
     constructor(sqlObject) {
+        this.gameID = sqlObject.gameID;
         this.winner = sqlObject.winner;
         this.loser = sqlObject.loser;
         this.winningScore = sqlObject.winningScore;

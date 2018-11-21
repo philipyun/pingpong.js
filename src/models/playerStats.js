@@ -89,7 +89,7 @@ class PlayerStats {
 
     finalizeStats() {
         this.totalGames = this.wins + this.losses;
-        this.percentage = this.wins / this.totalGames;
+        this.percentage = this.totalGames === 0 ? null : this.wins / this.totalGames;
         this.winDiff = this.wins - this.losses;
         this.pointDiff = this.pointsScored - this.pointsAllowed;
 

@@ -2,7 +2,7 @@ const sqlite = require('sqlite3').verbose();
 const fs = require('fs');
 
 const ERRORS = require('../defines/errors');
-const {Player, PlayerStats, Game} = require('../models');
+const {Player, PlayerStats, Standings, Game} = require('../models');
 
 class DataManagerError {
     constructor(errorCode, data) {
@@ -88,7 +88,7 @@ class DataManager {
     getPlayerELOs() {
         return new Promise((res, rej) => {
             this.db.all("SELECT playerID, elo FROM players", [], (error, data) => {
-                if (error === null && Array.isArray(data) && data.length !== 0)
+                if (error === null && Array.isArray(data))
                     res(data);
                 else
                     rej(new DataManagerError(ERRORS.GET_PLAYER_ELOS, {error}));
@@ -112,7 +112,7 @@ class DataManager {
     getGames(playerID=null) {
         const sql = playerID === null
             ? "SELECT * FROM games ORDER BY datetime DESC"
-            : "SELECT * FROM games WHERE player1 = (?) OR player2 = (?) ORDER BY datetime DESC";
+            : "SELECT * FROM games WHERE winner = (?) OR loser = (?) ORDER BY datetime DESC";
 
         const args = playerID === null ? [] : [playerID, playerID];
 
@@ -153,8 +153,8 @@ class DataManager {
                 " loserOdds, datetime) VALUES (?,?,?,?,?,?,?)");
 
             let args = [
-                winner,
-                loser,
+                winner.playerID,
+                loser.playerID,
                 winningScore,
                 losingScore,
                 winnerOdds,
@@ -184,7 +184,7 @@ class DataManager {
         try {
             return await this._createGame(player1ID, player2ID, player1Score, player2Score);
         } catch (reason) {
-            throw new DataManagerError(ERROR.CREATE_GAME, {reason});
+            throw new DataManagerError(ERRORS.CREATE_GAME, {reason});
         }
     }
 
@@ -209,7 +209,7 @@ class DataManager {
                 player2Odds: player2.getWinProbabilityAgainst(player1)
             };
         } catch (reason) {
-            throw new DataManagerError(ERROR.GET_MATCHUP, {reason});
+            throw new DataManagerError(ERRORS.GET_MATCHUP, {reason});
         }
 
     }
@@ -218,11 +218,11 @@ class DataManager {
 
     async getStats(playerID) {
         try {
-            let player = this.getPlayer(playerID);
-            let games = await this.getGames(playerID);
-            return PlayerStats.IndividualStats(playerID, player.elo, games);
+            let player = await this.getPlayer(playerID);
+            let games = await this.getGames(player.playerID);
+            return PlayerStats.IndividualStats(player.playerID, player.elo, games);
         } catch (reason) {
-            throw new DataManagerError(ERROR.GET_STATS, {reason});
+            throw new DataManagerError(ERRORS.GET_STATS, {reason});
         }
 
     }
@@ -231,11 +231,15 @@ class DataManager {
         try {
             let games = await this.getGames();
             let playerELOs = await this.getPlayerELOs();
-            let standings = new Standings(games, playerELOs);
 
+            if (playerELOs.length === 0) {
+                return [];
+            }
+
+            let standings = new Standings(games, playerELOs);
             return standings.getStandingsTable();
         } catch (reason) {
-            throw new DataManagerError(ERROR.GET_STANDINGS, {reason});
+            throw new DataManagerError(ERRORS.GET_STANDINGS, {reason});
         }
     }
 }

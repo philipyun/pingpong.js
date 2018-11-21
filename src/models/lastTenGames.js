@@ -31,7 +31,7 @@ class LastTenGames {
                 losses++;
             }
         }
-        return `${wins}-${loses}`;
+        return `${wins}-${losses}`;
     }
 }
 

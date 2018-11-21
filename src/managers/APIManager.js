@@ -16,7 +16,7 @@ class APIManager {
     }
 
     async getPlayer(req, res, next) {
-        let { playerID } = req.body;
+        let { playerID } = req.params;
         try {
             let player = await DataManager.getPlayer(playerID);
             res.status(200);
