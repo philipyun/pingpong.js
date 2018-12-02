@@ -19,7 +19,7 @@ class Streak {
 
     toString() {
         if (this.count < 0) {
-            return `L${this.count}`;
+            return `L${Math.abs(this.count)}`;
         } else if (this.count > 0) {
             return `W${this.count}`;
         } else {
