@@ -94,7 +94,7 @@ class PlayerStats {
         this.pointDiff = this.pointsScored - this.pointsAllowed;
 
         this.streak = this.streak.toString();
-        this.lastTen = this.lastTen.toString();
+        this.lastTen = this.lastTen.games;
     }
 
     computeGamesBehind(topPlayerStats) {

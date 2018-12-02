@@ -19,20 +19,6 @@ class LastTenGames {
         }
         this.games.push(LOSS);
     }
-
-    toString() {
-        let wins = 0;
-        let losses = 0;
-
-        for (let result of this.games) {
-            if (result === WIN) {
-                wins++;
-            } else {
-                losses++;
-            }
-        }
-        return `${wins}-${losses}`;
-    }
 }
 
 module.exports = LastTenGames;
