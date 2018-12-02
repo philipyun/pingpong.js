@@ -140,11 +140,11 @@ class DataManager {
         let losingScore = Math.min(player1Score, player2Score);
 
 
-        player1.updateRating(player2, winner === player1ID);
-        player2.updateRating(player1, winner === player2ID);
+        let newPlayer1ELO = player1.getNewRating(player2, winner === player1);
+        let newPlayer2ELO = player2.getNewRating(player1, winner === player2);
 
-        this.updatePlayerELO(player1.playerID, player1.elo);
-        this.updatePlayerELO(player2.playerID, player2.elo);
+        this.updatePlayerELO(player1.playerID, newPlayer1ELO);
+        this.updatePlayerELO(player2.playerID, newPlayer2ELO);
 
         const datetime = new Date().toISOString();
 

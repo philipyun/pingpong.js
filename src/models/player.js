@@ -24,11 +24,10 @@ class Player {
         return ADVANCED_K;
     }
 
-    updateRating(opposingPlayer, win) {
+    getNewRating(opposingPlayer, win) {
         let winProbability = this.getWinProbabilityAgainst(opposingPlayer);
-        this.elo = Math.round(this.elo + this.KFactor * ((win ? 1 : 0) - winProbability));
-        return this.elo;
+        return Math.round(this.elo + this.KFactor * ((win ? 1 : 0) - winProbability));
     }
 }
 
-module.exports = Player;
+
