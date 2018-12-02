@@ -26,7 +26,7 @@ class Streak {
         } else if (this.count > 0) {
             return `W${this.count}`;
         } else {
-            return "n/a";
+            return "W0";
         }
     }
 }
