@@ -1,19 +1,22 @@
 class Streak {
     constructor() {
         this.count = 0;
+        this.stopCounting = false;
     }
 
     addWin() {
-        if (this.count < 0)
+        if (this.stopCounting || this.count < 0) {
+            this.stopCounting = true;
             return;
-
+        }
         this.count++;
     }
 
     addLoss() {
-        if (this.count > 0)
+        if (this.stopCounting || this.count > 0) {
+            this.stopCounting = true;
             return;
-
+        }
         this.count--;
     }
 
@@ -23,7 +26,7 @@ class Streak {
         } else if (this.count > 0) {
             return `W${this.count}`;
         } else {
-            return null;
+            return "n/a";
         }
     }
 }
