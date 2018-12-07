@@ -36,7 +36,7 @@ class Standings {
             this.standingsTable.push(standingsRow)
         }
 
-        this.standingsTable.sort((player1, player2) => player2.percentage - player2.percentage);
+        this.standingsTable.sort((player1, player2) => player2.percentage - player1.percentage);
         for (let i = 1; i < this.standingsTable.length; i++) {
             this.standingsTable[i].computeGamesBehind(this.standingsTable[0]);
         }

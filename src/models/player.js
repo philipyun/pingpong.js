@@ -1,6 +1,9 @@
-const BEGINNER_K = 32;
-const INTERMEDIATE_K = 24;
-const ADVANCED_K = 16;
+const NOOB_K = 56;
+const BEGINNER_K = 48;
+const MODERATE_K = 40;
+const INTERMEDIATE_K = 32;
+const ADVANCED_K = 24;
+const ALL_STAR_K = 16;
 
 class Player {
     constructor(sqlObject) {
@@ -16,12 +19,18 @@ class Player {
     }
 
     get KFactor() {
-        if (this.elo < 2100)
+        if (this.elo < 1200)
+            return NOOB_K;
+        if (this.elo < 1500)
             return BEGINNER_K;
-        if (this.elo < 2400)
+        if (this.elo < 1800)
+            return MODERATE_K;
+        if (this.elo < 2100)
             return INTERMEDIATE_K;
+        if (this.elo < 2400)
+            return ADVANCED_K;
 
-        return ADVANCED_K;
+        return ALL_STAR_K;
     }
 
     getNewRating(opposingPlayer, win) {
