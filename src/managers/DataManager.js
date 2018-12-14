@@ -41,6 +41,24 @@ class DataManager {
         });
     }
 
+    editPlayer(playerID, playerName=null, nickname=null) {
+        return new Promise((res, rej) => {
+            let updates = {};
+            if (playerName !== null) updates.name = playerName;
+            if (nickname !== null) updates.nickname = nickname;
+            let setStatement = "SET " + Object.keys(updates).map((field) => field + " = ?").join(", ");
+            let args = Object.values(updates);
+            args.push(playerID);
+
+            this.db.run("UPDATE players " + setStatement + " WHERE playerID = ?", args, (error) => {
+                if (error === null)
+                    res();
+                else
+                    rej(new DataManagerError(ERRORS.UPDATE_PLAYER, {error, playerID}));
+            });
+        });
+    }
+
     updatePlayerELO(playerID, playerELO) {
         return new Promise((res, rej) => {
             this.db.run("UPDATE players SET elo = ? WHERE playerID = ?", [playerELO, playerID], (error) => {

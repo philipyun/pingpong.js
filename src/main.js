@@ -16,6 +16,7 @@ app.use(bodyParser.json());
 app.get(PLAYERS, APIManager.getPlayers);
 app.get(PLAYERS + "/:playerID", APIManager.getPlayer);
 app.post(PLAYERS, APIManager.createPlayer);
+app.put(PLAYERS + "/:playerID", APIManager.editPlayer);
 app.delete(PLAYERS, APIManager.deleteAllPlayers);
 app.delete(PLAYERS + "/:playerID", APIManager.deletePlayer);
 

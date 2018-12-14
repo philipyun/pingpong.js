@@ -15,6 +15,19 @@ class APIManager {
         }
     }
 
+    async editPlayer(req, res, next) {
+        let { playerID } = req.params;
+        let { playerName, nickname } = req.body;
+        try {
+            await DataManager.editPlayer(playerID, playerName, nickname);
+            res.status(200);
+            res.send(true);
+        } catch (e) {
+            res.status(500);
+            res.send(e);
+        }
+    }
+
     async getPlayer(req, res, next) {
         let { playerID } = req.params;
         try {
